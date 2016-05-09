@@ -23,13 +23,31 @@ def softmax_loss_naive(W, X, y, reg):
   loss = 0.0
   dW = np.zeros_like(W)
 
+
   #############################################################################
-  # TODO: Compute the softmax loss and its gradient using explicit loops.     #
   # Store the loss in loss and the gradient in dW. If you are not careful     #
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  num_classes = W.shape[1]
+  num_train = X.shape[0]
+  for i in range(num_train):
+    f_i = W.T.dot(X[i, :])
+    log_c = np.max(f_i)
+    f_i -= log_c
+    sum_i = 0.0
+    for f_i_j in f_i:
+      sum_i += np.exp(f_i_j)
+    loss += -f_i[y[i]] + np.log(sum_i)
+    for j in range(num_classes):
+      p = np.exp(f_i[j])/sum_i
+      dW[:, j] += (p-(j == y[i])) * X[i, :]
+
+  loss /= num_train
+  dW /= num_train
+  loss += 0.5 * reg * np.sum(W * W)
+  dW += reg*W
+
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
@@ -48,15 +66,29 @@ def softmax_loss_vectorized(W, X, y, reg):
   dW = np.zeros_like(W)
 
   #############################################################################
-  # TODO: Compute the softmax loss and its gradient using no explicit loops.  #
   # Store the loss in loss and the gradient in dW. If you are not careful     #
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  num_classes = W.shape[1]
+  num_train = X.shape[0]
+
+
+  f = np.dot(W.T, X.T)
+  f -= np.max(f)
+
+  f_correct = f[y, range(num_train)]
+  loss = -np.mean( np.log(np.exp(f_correct)/np.sum(np.exp(f))) )
+
+  p = np.exp(f)/np.sum(np.exp(f), axis=0)
+  ind = np.zeros(p.shape)
+  ind[y, range(num_train)] = 1
+  dW = np.dot(X.T,(p-ind).T)
+  dW /= num_train
+  loss += 0.5 * reg * np.sum(W * W)
+  dW += reg*W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
 
   return loss, dW
-
