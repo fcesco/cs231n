@@ -74,6 +74,7 @@ class TwoLayerNet(object):
       names to gradients of the loss with respect to those parameters.
     """
     scores = None
+    N, D = X.shape
     ############################################################################
     # TODO: Implement the forward pass for the two-layer net, computing the    #
     # class scores for X and storing them in the scores variable.              #
@@ -100,7 +101,14 @@ class TwoLayerNet(object):
     # automated tests, make sure that your L2 regularization includes a factor #
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
-
+    #############################################################################
+    loss, dout = softmax_loss(scores, y)
+    loss += self.reg * 0.5 * (np.sum(self.params['W2']**2) + np.sum(self.params['W1']**2))
+    dX2, grads['W2'], grads['b2'] = affine_backward(dout, cache2)
+    dX2 = relu_backward(dX2, cache_relu1)
+    dX1, grads['W1'], grads['b1'] = affine_backward(dX2, cache1)
+    grads['W2'] += self.reg * self.params['W2']
+    grads['W1'] += self.reg * self.params['W1']
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
