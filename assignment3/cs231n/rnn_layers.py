@@ -220,7 +220,7 @@ def word_embedding_backward(dout, cache):
   W, x = cache
   dW = np.zeros_like(W)
   V, _ = w.shape
-  dw = np.add.at
+  dw = np.add.at(dW, x.reshape(np.prod(x.shape)), dout.reshape( np.prod(dout.shape[:-1]), dout.shape[-1] )))
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
